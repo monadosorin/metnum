@@ -174,12 +174,38 @@ def check_e_usage(rumus):
 
     return True
 
+def tabel_perhitungan(rumus, t, step):
+    f_t = safe_eval(rumus, t)
+    f_th = safe_eval(rumus, t + step)
+    f_tmh = safe_eval(rumus, t - step)
+
+    if None in (f_t, f_th, f_tmh):
+        print("Tabel tidak bisa ditampilkan karena error evaluasi.")
+        return
+
+    forward = (f_th - f_t) / step
+    backward = (f_t - f_tmh) / step
+    central = (f_th - f_tmh) / (2 * step)
+
+    print("\nTABEL PERHITUNGAN")
+    print("=" * 70)
+    print(f"V(t) = {rumus}")
+    print(f"t = {t}, h = {step}\n")
+    print(f"{'Metode':<10} | {'f(t-h)':<12} | {'f(t)':<12} | {'f(t+h)':<12} | {'Hasil':<12}")
+    print("-" * 70)
+    print(f"{'Forward':<10} | {'-':<12} | {f_t:<12.6f} | {f_th:<12.6f} | {forward:<12.6f}")
+    print(f"{'Backward':<10} | {f_tmh:<12.6f} | {f_t:<12.6f} | {'-':<12} | {backward:<12.6f}")
+    print(f"{'Central':<10} | {f_tmh:<12.6f} | {'-':<12} | {f_th:<12.6f} | {central:<12.6f}")
+    print("=" * 70)
+
+    return forward, backward, central
+
 # --------------------------------------------------------------------------------------
 while(True):
     # Input rumus custom
     rumus = input("Rumus : V(t) = ")
     # rumus = "((9.81*70)/12)*(1-e^(-(12/70)*t))"       # rumus dummy
-    print("V(t) = " + rumus)
+    # print("V(t) = " + rumus)
 
     # validator rumus
     if not check_allowed_chars(rumus):
@@ -227,10 +253,12 @@ if "^" in rumus:
 
 
 # debug Rumus
-print("\n\n"+rumus)
+# print("\n\n"+rumus)
 
 # Output
 print("a(t) = " + str(foward(rumus, t, step)))
 print("a(t) = " + str(backward(rumus, t, step)))
 print("a(t) = " + str(central(rumus, t, step)))
 
+# Tabel perhitungan
+fwd, bwd, ctr = tabel_perhitungan(rumus, t, step)
