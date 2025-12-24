@@ -1,44 +1,61 @@
 import math
 
+# METODE DIFERENSIAL NUMERIK LOGIC
 def foward(rumus, t, step):
     print("\n\nFoward : ")
     # Hitung f(t) dan f(t+h)
-    f1 = eval(rumus, {"math": math}, {"t": t})
-    f2 = eval(rumus, {"math": math}, {"t": t + step})
+    f1 = safe_eval(rumus, t)
+    f2 = safe_eval(rumus, t + step)
 
-    print(f"f({t})     = {f1}")
+    if f1 is None or f2 is None:
+        return None
+
+    print(f"f({t}) = {f1}")
     print(f"f({t}+{step}) = {f2}")
 
-    # a(x) 
-    hasil = (f2 - f1)/step
-    return hasil
+    return (f2 - f1) / step
 
 def backward(rumus, t, step):
     print("\n\nBackward : ")
     # Hitung f(t) dan f(t-h)
-    f1 = eval(rumus, {"math": math}, {"t": t})
-    f2 = eval(rumus, {"math": math}, {"t": t - step})
+    f1 = safe_eval(rumus, t)
+    f2 = safe_eval(rumus, t - step)
+
+    if f1 is None or f2 is None:
+        return None
 
     print(f"f({t})     = {f1}")
     print(f"f({t}-{step}) = {f2}")
 
-    # a(x) 
-    hasil = (f1 - f2)/step
-    return hasil
+    # a(x)
+    return (f1 - f2)/step
 
 def central(rumus, t, step):
     print("\n\nCentral : ")
     # Hitung f(t+h) dan f(t-h)
-    f1 = eval(rumus, {"math": math}, {"t": t + step})
-    f2 = eval(rumus, {"math": math}, {"t": t - step})
+    f1 = safe_eval(rumus, t + step)
+    f2 = safe_eval(rumus, t - step)
 
+    if f1 is None or f2 is None:
+        return None
+    
     print(f"f({t}+{step}) = {f1}")
     print(f"f({t}-{step}) = {f2}")
 
     # a(x) 
-    hasil = (f1 - f2)/(2*step)
-    return hasil
+    return (f1 - f2)/(2*step)
 
+def safe_eval(rumus, t):
+    try:
+        return eval(rumus, {"math": math, "e": math.e}, {"t": t})
+    except ZeroDivisionError:
+        print("Error: pembagian dengan nol")
+        return None
+    except Exception:
+        print("Error: rumus tidak bisa dihitung")
+        return None
+
+# CUSTOM RULE INPUT
 def input_t(isi):
     while True:
         try:
@@ -57,68 +74,102 @@ def input_step(isi):
         except ValueError:
             print("Error: input harus berupa angka")
 
+
+# SYNTAX CHECKER
+def check_allowed_chars(rumus):
+    allowed = "0123456789+-*/^.()t e"
+    for c in rumus:
+        if c not in allowed:
+            return False
+    return True
+
 def check_parentheses(rumus):
     stack = 0
-    for char in rumus:
-        if char == "(":
+    for c in rumus:
+        if c == "(":
             stack += 1
-        elif char == ")":
+        elif c == ")":
             stack -= 1
             if stack < 0:
                 return False
     return stack == 0
 
 def check_empty_parentheses(rumus):
-    rumus = rumus.replace(" ", "")
-    return "()" not in rumus
+    return "()" not in rumus.replace(" ", "")
 
 def check_operator(rumus):
+    r = rumus.replace(" ", "")
     operators = "+-*/^"
-    
-    # hapus spasi
-    rumus = rumus.replace(" ", "")
-    
-    # awal / akhir
-    if rumus[0] in operators or rumus[-1] in operators:
-        return False
-    
-    # cek berurutan
-    for i in range(len(rumus) - 1):
-        if rumus[i] in operators and rumus[i+1] in operators:
-            # izinkan operator +-
-            if not (rumus[i] in "*/^" and rumus[i+1] == "-"):
-                return False
-    return True
 
-def check_allowed_chars(rumus):
-    allowed = "0123456789+-*/^.()t e"
-    
-    for char in rumus:
-        if char not in allowed:
+    # tidak boleh spasi saja
+    if not r:
+        return False
+
+    # tidak boleh diakhiri operator
+    if r[-1] in operators:
+        return False
+
+    for i in range(len(r) - 1):
+        a = r[i]
+        b = r[i + 1]
+
+        if a in operators and b in operators:
+            # izinkan unary minus
+            if b == "-" and a in "+-*/^(":
+                continue
             return False
+
     return True
 
 def check_variable_t(rumus):
     return "t" in rumus
 
 def check_sebelah_t(rumus):
-    rumus = rumus.replace(" ", "")
+    r = rumus.replace(" ", "")
     operators = "+-*/^"
-    n = len(rumus)
+    n = len(r)
 
     for i in range(n):
-        if rumus[i] == "t":
+        if r[i] == "t":
 
-            # cek kiri
+            # kiri t
             if i > 0:
-                kiri = rumus[i - 1]
-                if kiri not in operators + "(":
+                kiri = r[i - 1]
+                if kiri.isdigit() or kiri == ")" or kiri == "e":
                     return False
 
-            # cek kanan
+            # kanan t
             if i < n - 1:
-                kanan = rumus[i + 1]
-                if kanan not in operators + ")":
+                kanan = r[i + 1]
+                if kanan.isdigit() or kanan == "(" or kanan == "e":
+                    return False
+
+    return True
+
+def check_e_usage(rumus):
+    r = rumus.replace(" ", "")
+    operators = "+-*/^"
+    n = len(r)
+
+    for i in range(n):
+        if r[i] == "e":
+
+            # kiri e
+            if i > 0:
+                kiri = r[i - 1]
+                if kiri.isdigit() or kiri == ")" or kiri == "t" or kiri == "e":
+                    return False
+
+            # kanan e
+            if i < n - 1:
+                kanan = r[i + 1]
+
+                # e^ boleh
+                if kanan == "^":
+                    continue
+
+                # e sebagai konstanta
+                if kanan.isdigit() or kanan == "t" or kanan == "e":
                     return False
 
     return True
@@ -155,6 +206,10 @@ while(True):
         print("Error: gunakan operator di sekitar t")
         continue
 
+    if not check_e_usage(rumus):
+        print("Error: penggunaan e tidak valid")
+        continue
+    
     break
 
 
@@ -167,9 +222,12 @@ step = input_step("Step : ")
 if "e^" in rumus:
     rumus = rumus.replace("e^", "math.exp")
 
+if "^" in rumus:
+    rumus = rumus.replace("^", "**")
+
 
 # debug Rumus
-print(rumus)
+print("\n\n"+rumus)
 
 # Output
 print("a(t) = " + str(foward(rumus, t, step)))
