@@ -6,7 +6,7 @@ import sys
 import io
 
 
-# ===================== UPDATED LOGIC (INCLUDING YOUR NEW FUNCTIONS) =====================
+# ===================== MAIN LOGIC =====================
 
 def foward(rumus, t, step):
     # Hitung f(t) dan f(t+h)
@@ -50,7 +50,7 @@ def safe_eval(rumus, t):
         return None
 
 
-# ===================== VALIDATORS (UPDATED) =====================
+# ===================== VALIDATORS =====================
 
 def check_allowed_chars(rumus):
     allowed = "0123456789+-*/^.()t e"
@@ -155,7 +155,7 @@ def tabel_perhitungan(rumus, t, step):
     return forward, backward, central, f_t, f_th, f_tmh
 
 
-# ===================== CONSOLE LOGGER CLASS =====================
+# ===================== CONSOLE LOG =====================
 
 class ConsoleLogger:
     def __init__(self):
@@ -201,12 +201,12 @@ class EnhancedDiffUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Kalkulator Diferensiasi Numerik")
-        self.geometry("1000x850")  # besaran dikit jadi nya untuk panel console
+        self.geometry("1000x850")  # besaran panel console
 
-        # Set ukuran minimum window
+        # ukuran minimum window
         self.minsize(950, 800)
 
-        # Configure style
+        # style
         self.style = ttk.Style()
         self.style.theme_use('clam')
 

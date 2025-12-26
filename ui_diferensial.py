@@ -4,7 +4,7 @@ import math
 import io
 import sys
 
-# ===================== LOGIC (YOUR CODE, MINIMALLY MODIFIED) =====================
+# ===================== MAIN LOGIC =====================
 
 def foward(rumus, t, step):
     f1 = safe_eval(rumus, t)
@@ -513,14 +513,13 @@ class EnhancedDiffUI(tk.Tk):
             self.calc_btn.config(text="Calculate Derivative")
 
 
-# ===================== RUN ENHANCED VERSION =====================
+# ===================== MAIN =====================
 if __name__ == "__main__":
-    # Uncomment one of the following lines to choose which UI to use:
 
     # Original UI
     # app = DiffUI()
 
-    # Enhanced UI (recommended)
+    # Enhanced UI 
     app = EnhancedDiffUI()
 
     app.mainloop()
